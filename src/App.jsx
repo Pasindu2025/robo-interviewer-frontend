@@ -20,7 +20,7 @@ function App() {
   const callAI = async (finalText) => {
     setCurrentQuestion("Analyzing your answer...");
     try {
-      const response = await fetch("http://localhost:8080/api/interview/validate", {
+      const response = await fetch("https://robo-interviewer-backend-production.up.railway.app/api/interview/validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
