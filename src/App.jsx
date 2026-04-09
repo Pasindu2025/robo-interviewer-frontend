@@ -9,8 +9,8 @@ function App() {
   const [isListening, setIsListening] = useState(false);
   const [interviewStep, setInterviewStep] = useState(-1);
   const [questionCount, setQuestionCount] = useState(1);
-  const [category, setCategory] = useState("Java Developer"); // 👈 Default Category
-  const [finalReport, setFinalReport] = useState(""); // 👈 Final feedback එක තියාගන්න
+  const [category, setCategory] = useState("Software Engineer"); // 👈 Default එක Software Engineer කළා
+  const [finalReport, setFinalReport] = useState(""); 
 
   const countRef = useRef(1);
   const animeContainer = useRef(null);
@@ -32,7 +32,7 @@ function App() {
           question: currentQuestion,
           answer: finalText,
           totalQuestions: countRef.current,
-          category: category // 👈 Category එක Backend එකට යවනවා
+          category: category 
         }),
       });
       const data = await response.json();
@@ -40,7 +40,7 @@ function App() {
 
       speak(data.feedback, () => {
         if (finished || countRef.current >= 10) {
-          setFinalReport(data.feedback); // Final summary එක save කරනවා
+          setFinalReport(data.feedback); 
           setCurrentQuestion("Interview Session Completed!");
           setInterviewStep(100);
         } else {
@@ -145,26 +145,30 @@ function App() {
         </div>
 
         {interviewStep === 100 ? (
-          // Final Result Screen
           <div className="animate-fade-in">
             <h2 className="text-xl font-bold text-green-400 mb-4">Final Report</h2>
             <div className="bg-slate-950/80 p-5 rounded-2xl text-left text-sm text-slate-300 mb-6 border border-slate-800 max-h-60 overflow-y-auto custom-scrollbar">
               {finalReport}
             </div>
-            <button onClick={restartApp} className="flex items-center justify-center gap-2 w-full bg-blue-600 py-4 rounded-2xl font-black"><FaUndo /> RESTART</button>
+            <button onClick={restartApp} className="flex items-center justify-center gap-2 w-full bg-blue-600 py-4 rounded-2xl font-black shadow-lg shadow-blue-900/20 active:scale-95 transition-transform"><FaUndo /> RESTART</button>
           </div>
         ) : (
           <>
             <p className="text-lg font-medium mb-6 italic min-h-[60px] text-slate-200">"{currentQuestion}"</p>
 
             {interviewStep === -1 && (
-              <div className="mb-6">
-                <label className="text-[10px] text-blue-400 font-bold block mb-2 uppercase tracking-widest text-left">Target Role</label>
+              <div className="mb-6 animate-fade-in text-left">
+                <label className="text-[10px] text-blue-400 font-bold block mb-2 uppercase tracking-widest ml-1">Select Target Role</label>
                 <select 
-                  className="w-full bg-slate-900 text-white p-4 rounded-2xl border border-slate-700 outline-none focus:border-blue-500"
+                  className="w-full bg-slate-900 text-white p-4 rounded-2xl border border-slate-700 outline-none focus:border-blue-500 transition-colors cursor-pointer"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                 >
+                  {/* මම ඔයා ඉල්ලපු අලුත් ටික පිළිවෙළට මෙතනට දැම්මා */}
+                  <option value="Software Engineer">Software Engineer</option>
+                  <option value="AI Developer">AI Developer</option>
+                  <option value="Network Engineer">Network Engineer</option>
+                  <option value="QA Engineer">QA Engineer</option>
                   <option value="Java Developer">Java Developer</option>
                   <option value="Frontend Developer">Frontend Developer</option>
                   <option value="Python Developer">Python Developer</option>
@@ -174,7 +178,7 @@ function App() {
               </div>
             )}
 
-            <div className="bg-slate-950/80 p-4 rounded-2xl text-left text-sm text-slate-400 mb-6 border border-slate-800 relative focus-within:border-blue-500/50">
+            <div className="bg-slate-950/80 p-4 rounded-2xl text-left text-sm text-slate-400 mb-6 border border-slate-800 relative focus-within:border-blue-500/50 transition-colors">
               <span className="text-[10px] text-blue-400 font-bold block mb-2 uppercase tracking-widest">Answer Area</span>
               <textarea
                 className="w-full bg-transparent text-slate-200 border-none outline-none resize-none min-h-[100px] pr-10 leading-relaxed custom-scrollbar"
