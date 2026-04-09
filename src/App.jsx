@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import lottie from "lottie-web";
 import robotAnimation from "./assets/robot.json";
-import { FaCheckCircle } from "react-icons/fa";
+import { FaCheckCircle, FaUndo } from "react-icons/fa";
 
 function App() {
   const [currentQuestion, setCurrentQuestion] = useState("Hi! Ready to start your interview?");
@@ -9,7 +9,9 @@ function App() {
   const [isListening, setIsListening] = useState(false);
   const [interviewStep, setInterviewStep] = useState(-1);
   const [questionCount, setQuestionCount] = useState(1);
-  
+  const [category, setCategory] = useState("Java Developer"); // 👈 Default Category
+  const [finalReport, setFinalReport] = useState(""); // 👈 Final feedback එක තියාගන්න
+
   const countRef = useRef(1);
   const animeContainer = useRef(null);
   const recognitionRef = useRef(null);
@@ -29,7 +31,8 @@ function App() {
         body: JSON.stringify({
           question: currentQuestion,
           answer: finalText,
-          totalQuestions: countRef.current
+          totalQuestions: countRef.current,
+          category: category // 👈 Category එක Backend එකට යවනවා
         }),
       });
       const data = await response.json();
@@ -37,7 +40,8 @@ function App() {
 
       speak(data.feedback, () => {
         if (finished || countRef.current >= 10) {
-          setCurrentQuestion("Interview completed. Excellent job!");
+          setFinalReport(data.feedback); // Final summary එක save කරනවා
+          setCurrentQuestion("Interview Session Completed!");
           setInterviewStep(100);
         } else {
           countRef.current += 1;
@@ -57,7 +61,7 @@ function App() {
     if (transcript.trim().length > 2) {
       callAI(transcript.trim());
     } else {
-      speak("I didn't catch that. Please type or speak your answer.", () => startListening());
+      speak("Please type or speak your answer.", () => startListening());
     }
   };
 
@@ -73,7 +77,6 @@ function App() {
         for (let i = event.resultIndex; i < event.results.length; ++i) {
           currentResult += event.results[i][0].transcript;
         }
-        // Voice එකෙන් එන දේ transcript එකට සෙට් කරනවා
         setTranscript(currentResult); 
 
         if (currentResult.toLowerCase().includes("done")) {
@@ -90,7 +93,6 @@ function App() {
           setIsListening(false);
         }
       };
-
       recognitionRef.current = recognition;
     }
   }, [SpeechRecognition]);
@@ -114,10 +116,12 @@ function App() {
     setInterviewStep(0);
     countRef.current = 1;
     setQuestionCount(1);
-    const intro = "Welcome! Please introduce yourself and your technical background.";
+    const intro = `Welcome! Let's start the ${category} interview. Please introduce yourself.`;
     setCurrentQuestion(intro);
     speak(intro, () => startListening());
   };
+
+  const restartApp = () => window.location.reload();
 
   useEffect(() => {
     if (animeContainer.current) {
@@ -140,45 +144,59 @@ function App() {
           <div ref={animeContainer} className="w-full h-full scale-110"></div>
         </div>
 
-        <p className="text-lg font-medium mb-6 italic min-h-[60px] text-slate-200">
-          "{currentQuestion}"
-        </p>
-
-        {/* Transcript Area: මෙතන දැන් Type කරන්නත් පුළුවන් */}
-        <div className="bg-slate-950/80 p-4 rounded-2xl text-left text-sm text-slate-400 mb-6 border border-slate-800 relative transition-all focus-within:border-blue-500/50">
-          <span className="text-[10px] text-blue-400 font-bold block mb-2 uppercase tracking-widest">
-            Your Answer (Speak or Type)
-          </span>
-          
-          <textarea
-            className="w-full bg-transparent text-slate-200 border-none outline-none resize-none min-h-[100px] pr-10 leading-relaxed custom-scrollbar"
-            value={transcript}
-            onChange={(e) => setTranscript(e.target.value)} // 👈 User ට Type කරන්න ඉඩ දෙනවා
-            placeholder={isListening ? "Listening... or click here to type" : "Waiting to start..."}
-          />
-          
-          {isListening && (
-            <button 
-              onClick={handleManualDone} 
-              className="absolute right-3 bottom-3 text-green-500 hover:text-green-400 transition-all active:scale-90"
-              title="Submit Answer"
-            >
-              <FaCheckCircle size={30} />
-            </button>
-          )}
-        </div>
-
-        {interviewStep === -1 ? (
-          <button 
-            onClick={startInterview} 
-            className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-black text-lg transition-all shadow-lg shadow-blue-600/20 active:scale-95"
-          >
-            START 10-ROUND SESSION
-          </button>
-        ) : (
-          <div className="py-3 px-6 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-blue-400 font-black tracking-widest">
-            {interviewStep === 100 ? "COMPLETED" : `ROUND ${questionCount} OF 10`}
+        {interviewStep === 100 ? (
+          // Final Result Screen
+          <div className="animate-fade-in">
+            <h2 className="text-xl font-bold text-green-400 mb-4">Final Report</h2>
+            <div className="bg-slate-950/80 p-5 rounded-2xl text-left text-sm text-slate-300 mb-6 border border-slate-800 max-h-60 overflow-y-auto custom-scrollbar">
+              {finalReport}
+            </div>
+            <button onClick={restartApp} className="flex items-center justify-center gap-2 w-full bg-blue-600 py-4 rounded-2xl font-black"><FaUndo /> RESTART</button>
           </div>
+        ) : (
+          <>
+            <p className="text-lg font-medium mb-6 italic min-h-[60px] text-slate-200">"{currentQuestion}"</p>
+
+            {interviewStep === -1 && (
+              <div className="mb-6">
+                <label className="text-[10px] text-blue-400 font-bold block mb-2 uppercase tracking-widest text-left">Target Role</label>
+                <select 
+                  className="w-full bg-slate-900 text-white p-4 rounded-2xl border border-slate-700 outline-none focus:border-blue-500"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                >
+                  <option value="Java Developer">Java Developer</option>
+                  <option value="Frontend Developer">Frontend Developer</option>
+                  <option value="Python Developer">Python Developer</option>
+                  <option value="UI/UX Designer">UI/UX Designer</option>
+                  <option value="Full Stack Engineer">Full Stack Engineer</option>
+                </select>
+              </div>
+            )}
+
+            <div className="bg-slate-950/80 p-4 rounded-2xl text-left text-sm text-slate-400 mb-6 border border-slate-800 relative focus-within:border-blue-500/50">
+              <span className="text-[10px] text-blue-400 font-bold block mb-2 uppercase tracking-widest">Answer Area</span>
+              <textarea
+                className="w-full bg-transparent text-slate-200 border-none outline-none resize-none min-h-[100px] pr-10 leading-relaxed custom-scrollbar"
+                value={transcript}
+                onChange={(e) => setTranscript(e.target.value)}
+                placeholder={isListening ? "Listening... or click to type" : "Choose role and start"}
+              />
+              {isListening && (
+                <button onClick={handleManualDone} className="absolute right-3 bottom-3 text-green-500 hover:text-green-400 transition-all active:scale-90">
+                  <FaCheckCircle size={30} />
+                </button>
+              )}
+            </div>
+
+            {interviewStep === -1 ? (
+              <button onClick={startInterview} className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-black text-lg transition-all shadow-lg active:scale-95">START SESSION</button>
+            ) : (
+              <div className="py-3 px-6 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-blue-400 font-black tracking-widest">
+                ROUND {questionCount} OF 10
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
