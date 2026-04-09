@@ -13,12 +13,12 @@ function App() {
   const countRef = useRef(1);
   const animeContainer = useRef(null);
   const recognitionRef = useRef(null);
-  const isManuallyStopped = useRef(false); // 👈 Mic එක අපිම නැවැත්තුවාද කියලා බලන්න
+  const isManuallyStopped = useRef(false);
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
   const callAI = async (finalText) => {
-    isManuallyStopped.current = true; // AI එකට කතා කරද්දී mic එක restart වෙන්න එපා
+    isManuallyStopped.current = true;
     if (recognitionRef.current) recognitionRef.current.stop();
     
     setCurrentQuestion("Analyzing your answer...");
@@ -43,7 +43,7 @@ function App() {
           countRef.current += 1;
           setQuestionCount(countRef.current);
           setCurrentQuestion(data.nextQuestion);
-          setTranscript(""); // 👈 අලුත් ප්‍රශ්නයට කලින් transcript එක clear කරනවා
+          setTranscript(""); 
           speak(data.nextQuestion, () => startListening());
         }
       });
@@ -57,7 +57,7 @@ function App() {
     if (transcript.trim().length > 2) {
       callAI(transcript.trim());
     } else {
-      speak("I didn't catch that. Could you repeat?", () => startListening());
+      speak("I didn't catch that. Please type or speak your answer.", () => startListening());
     }
   };
 
@@ -73,7 +73,8 @@ function App() {
         for (let i = event.resultIndex; i < event.results.length; ++i) {
           currentResult += event.results[i][0].transcript;
         }
-        setTranscript(currentResult); // 👈 Transcript එක දිගටම එකතු වෙනවා
+        // Voice එකෙන් එන දේ transcript එකට සෙට් කරනවා
+        setTranscript(currentResult); 
 
         if (currentResult.toLowerCase().includes("done")) {
           callAI(currentResult.replace(/done/gi, "").trim());
@@ -81,7 +82,6 @@ function App() {
       };
 
       recognition.onend = () => {
-        // 👈 Phone එකේදී mic එක නතර වුණොත්, අපි නතර කළේ නැත්නම් ආයෙත් start කරනවා
         if (!isManuallyStopped.current) {
           try {
             recognition.start();
@@ -114,7 +114,7 @@ function App() {
     setInterviewStep(0);
     countRef.current = 1;
     setQuestionCount(1);
-    const intro = "Welcome! Please introduce yourself.";
+    const intro = "Welcome! Please introduce yourself and your technical background.";
     setCurrentQuestion(intro);
     speak(intro, () => startListening());
   };
@@ -132,23 +132,51 @@ function App() {
 
   return (
     <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-6 font-sans">
-      <h1 className="text-2xl font-black text-blue-500 mb-8 italic">ROBO INTERVIEWER PRO</h1>
-      <div className="bg-slate-800/50 backdrop-blur-md p-8 rounded-[2.5rem] w-full max-w-md border border-slate-700 text-center">
-        <div className="w-32 h-32 mx-auto mb-6 bg-slate-900 rounded-full border-2 border-blue-500/20">
+      <h1 className="text-2xl font-black text-blue-500 mb-8 italic tracking-widest">ROBO INTERVIEWER PRO</h1>
+      
+      <div className="bg-slate-800/50 backdrop-blur-md p-8 rounded-[2.5rem] w-full max-w-md border border-slate-700 text-center shadow-2xl">
+        
+        <div className="w-32 h-32 mx-auto mb-6 bg-slate-900 rounded-full border-2 border-blue-500/20 flex items-center justify-center overflow-hidden">
           <div ref={animeContainer} className="w-full h-full scale-110"></div>
         </div>
-        <p className="text-lg font-medium mb-6 italic min-h-[60px]">"{currentQuestion}"</p>
-        <div className="bg-slate-950/80 p-4 rounded-xl text-left text-sm text-slate-400 mb-6 border border-slate-800 relative">
-          <span className="text-[10px] text-blue-400 font-bold block mb-1">LIVE TRANSCRIPT</span>
-          <p className="min-h-[40px]">{transcript || (isListening ? "Listening..." : "Waiting...")}</p>
+
+        <p className="text-lg font-medium mb-6 italic min-h-[60px] text-slate-200">
+          "{currentQuestion}"
+        </p>
+
+        {/* Transcript Area: මෙතන දැන් Type කරන්නත් පුළුවන් */}
+        <div className="bg-slate-950/80 p-4 rounded-2xl text-left text-sm text-slate-400 mb-6 border border-slate-800 relative transition-all focus-within:border-blue-500/50">
+          <span className="text-[10px] text-blue-400 font-bold block mb-2 uppercase tracking-widest">
+            Your Answer (Speak or Type)
+          </span>
+          
+          <textarea
+            className="w-full bg-transparent text-slate-200 border-none outline-none resize-none min-h-[100px] pr-10 leading-relaxed custom-scrollbar"
+            value={transcript}
+            onChange={(e) => setTranscript(e.target.value)} // 👈 User ට Type කරන්න ඉඩ දෙනවා
+            placeholder={isListening ? "Listening... or click here to type" : "Waiting to start..."}
+          />
+          
           {isListening && (
-            <button onClick={handleManualDone} className="absolute right-3 bottom-3 text-green-500"><FaCheckCircle size={24} /></button>
+            <button 
+              onClick={handleManualDone} 
+              className="absolute right-3 bottom-3 text-green-500 hover:text-green-400 transition-all active:scale-90"
+              title="Submit Answer"
+            >
+              <FaCheckCircle size={30} />
+            </button>
           )}
         </div>
+
         {interviewStep === -1 ? (
-          <button onClick={startInterview} className="w-full bg-blue-600 py-3 rounded-xl font-bold">START SESSION</button>
+          <button 
+            onClick={startInterview} 
+            className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-black text-lg transition-all shadow-lg shadow-blue-600/20 active:scale-95"
+          >
+            START 10-ROUND SESSION
+          </button>
         ) : (
-          <div className="py-2 px-4 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold">
+          <div className="py-3 px-6 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-blue-400 font-black tracking-widest">
             {interviewStep === 100 ? "COMPLETED" : `ROUND ${questionCount} OF 10`}
           </div>
         )}
@@ -156,4 +184,5 @@ function App() {
     </div>
   );
 }
+
 export default App;
