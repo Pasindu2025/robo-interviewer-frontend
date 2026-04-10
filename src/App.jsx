@@ -186,17 +186,17 @@ function App() {
 
         {interviewStep === 100 ? (
           <div>
-            <h2 className="text-xl font-bold text-green-400 mb-4">Final Report</h2>
-            <div style={strictStyles.input} className="p-5 rounded-2xl text-left text-sm text-gray-300 mb-6 max-h-64 overflow-y-auto border border-slate-700">
+            <h2 className="text-xl font-bold text-green-400 mb-4 tracking-widest uppercase">Final Report</h2>
+            <div style={strictStyles.input} className="p-5 rounded-2xl text-left text-sm text-gray-300 mb-6 max-h-64 overflow-y-auto border border-slate-700 leading-relaxed">
               {finalReport}
             </div>
-            <button onClick={restartApp} style={strictStyles.blueBtn} className="w-full py-4 rounded-xl font-black flex items-center justify-center gap-2">
+            <button onClick={restartApp} style={strictStyles.blueBtn} className="w-full py-4 rounded-xl font-black flex items-center justify-center gap-2 active:scale-95 transition-all">
               <FaUndo /> RESTART SESSION
             </button>
           </div>
         ) : (
           <>
-            <div className="min-h-[70px] mb-6">
+            <div className="min-h-[70px] mb-6 flex items-center justify-center">
                <p className="italic text-gray-200 text-lg leading-snug">"{currentQuestion}"</p>
             </div>
 
@@ -205,7 +205,7 @@ function App() {
                 <label style={strictStyles.blueText} className="text-[10px] font-bold block mb-2 uppercase tracking-widest ml-2">Select Your Role</label>
                 <select 
                   style={strictStyles.input}
-                  className="w-full p-4 rounded-2xl border border-slate-700 outline-none appearance-none"
+                  className="w-full p-4 rounded-2xl border border-slate-700 outline-none appearance-none cursor-pointer"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                 >
@@ -219,30 +219,38 @@ function App() {
             <div style={strictStyles.input} className="p-4 rounded-2xl mb-6 relative border border-slate-700 text-left">
               <span style={strictStyles.blueText} className="text-[10px] font-bold block mb-2 uppercase tracking-widest">Transcript</span>
               <textarea
-                className="w-full bg-transparent outline-none text-white min-h-[120px] resize-none pr-10"
+                className="w-full bg-transparent outline-none text-white min-h-[120px] resize-none pr-10 leading-relaxed"
                 value={transcript}
                 onChange={(e) => setTranscript(e.target.value)}
-                placeholder={isListening ? "Listening..." : "Ready?"}
+                placeholder={isListening ? "Listening... Speak now" : "Ready to begin?"}
               />
               {isListening && (
-                <button onClick={handleManualDone} className="absolute bottom-4 right-4 text-green-500">
+                <button onClick={handleManualDone} className="absolute bottom-4 right-4 text-green-500 hover:text-green-400 active:scale-90 transition-all">
                   <FaCheckCircle size={32} />
                 </button>
               )}
             </div>
 
             {interviewStep === -1 ? (
-              <button onClick={startInterview} style={strictStyles.blueBtn} className="w-full py-4 rounded-xl font-black text-lg">
+              <button onClick={startInterview} style={strictStyles.blueBtn} className="w-full py-4 rounded-xl font-black text-lg shadow-lg active:scale-95 transition-all">
                 START INTERVIEW
               </button>
             ) : (
-              <div style={strictStyles.blueText} className="font-black text-xs uppercase tracking-widest">
+              <div style={strictStyles.blueText} className="font-black text-xs uppercase tracking-[0.2em] py-2 px-6 bg-blue-500/10 rounded-full border border-blue-500/20 inline-block">
                 Question {questionCount} / 10
               </div>
             )}
           </>
         )}
       </div>
+
+      {/* Footer Section */}
+      <footer className="mt-10 text-[10px] text-slate-500 text-center pb-6 tracking-widest uppercase">
+        <p>© 2026 ROBO INTERVIEWER PRO. ALL RIGHTS RESERVED.</p>
+        <p className="mt-2 text-slate-400 font-bold">CREATED BY PASINDU LAKSHAN</p>
+        <p className="mt-1 opacity-50">Educational Tool • Powered by AI</p>
+      </footer>
+
     </div>
   );
 }
