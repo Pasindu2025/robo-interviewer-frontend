@@ -16,30 +16,19 @@ function App() {
   const animeContainer = useRef(null);
   const recognitionRef = useRef(null);
   const isManuallyStopped = useRef(false);
+  
+  // පරණ කියපු ටික මතක තියාගන්න අලුත් Ref එකක්
+  const accumulatedTranscript = useRef(""); 
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
   const jobRoles = [
-    "Software Engineer/Developer",
-    "Data Scientist",
-    "Data Analyst",
-    "Cybersecurity Specialist",
-    "Network Administrator",
-    "Artificial Intelligence/Machine Learning Engineer",
-    "Web Developer",
-    "Mobile App Developer",
-    "Database Administrator",
-    "IT Consultant",
-    "Systems Analyst",
-    "Cloud Architect",
-    "UX/UI Designer",
-    "Game Developer",
-    "DevOps Engineer",
-    "Business Analyst (IT)",
-    "Network Engineer",
-    "Software Tester/QA Engineer",
-    "Blockchain Developer",
-    "Computer Systems Analyst"
+    "Software Engineer/Developer", "Data Scientist", "Data Analyst", "Cybersecurity Specialist",
+    "Network Administrator", "Artificial Intelligence/Machine Learning Engineer", "Web Developer",
+    "Mobile App Developer", "Database Administrator", "IT Consultant", "Systems Analyst",
+    "Cloud Architect", "UX/UI Designer", "Game Developer", "DevOps Engineer",
+    "Business Analyst (IT)", "Network Engineer", "Software Tester/QA Engineer",
+    "Blockchain Developer", "Computer Systems Analyst"
   ];
 
   const callAI = async (finalText) => {
@@ -71,7 +60,11 @@ function App() {
           countRef.current += 1;
           setQuestionCount(countRef.current);
           setCurrentQuestion(data.nextQuestion);
+          
+          // ඊළඟ ප්‍රශ්නයට යද්දී විතරක් ඔක්කොම reset කරනවා
           setTranscript("");
+          accumulatedTranscript.current = ""; 
+          
           speak(data.nextQuestion, () => startListening());
         }
       });
@@ -98,14 +91,27 @@ function App() {
       recognition.lang = 'en-US';
 
       recognition.onresult = (event) => {
-        let currentResult = "";
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          currentResult += event.results[i][0].transcript;
-        }
-        setTranscript(currentResult);
+        let interimTranscript = "";
+        let finalForThisSession = "";
 
-        if (currentResult.toLowerCase().includes("done")) {
-          callAI(currentResult.replace(/done/gi, "").trim());
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          const transcriptPiece = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalForThisSession += transcriptPiece;
+          } else {
+            interimTranscript += transcriptPiece;
+          }
+        }
+
+        // පරණ කියපු ටිකට අලුත් ටික එකතු කරනවා
+        accumulatedTranscript.current += finalForThisSession;
+        
+        // Screen එකේ පෙන්නන්න accumulated ටිකයි දැනට කියන interim ටිකයි එකතු කරනවා
+        const currentFullDisplay = (accumulatedTranscript.current + interimTranscript).trim();
+        setTranscript(currentFullDisplay);
+
+        if (currentFullDisplay.toLowerCase().includes("done")) {
+          callAI(currentFullDisplay.replace(/done/gi, "").trim());
         }
       };
 
@@ -244,7 +250,6 @@ function App() {
         )}
       </div>
 
-      {/* Footer Section */}
       <footer className="mt-10 text-[10px] text-slate-500 text-center pb-6 tracking-widest uppercase">
         <p>© 2026 ROBO INTERVIEWER PRO. ALL RIGHTS RESERVED.</p>
         <p className="mt-2 text-slate-400 font-bold">CREATED BY PASINDU LAKSHAN</p>
