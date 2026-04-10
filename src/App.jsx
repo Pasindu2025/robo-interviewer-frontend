@@ -9,7 +9,7 @@ function App() {
   const [isListening, setIsListening] = useState(false);
   const [interviewStep, setInterviewStep] = useState(-1);
   const [questionCount, setQuestionCount] = useState(1);
-  const [category, setCategory] = useState("Software Engineer"); 
+  const [category, setCategory] = useState("Software Engineer/Developer"); 
   const [finalReport, setFinalReport] = useState(""); 
 
   const countRef = useRef(1);
@@ -18,6 +18,29 @@ function App() {
   const isManuallyStopped = useRef(false);
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  const jobRoles = [
+    "Software Engineer/Developer",
+    "Data Scientist",
+    "Data Analyst",
+    "Cybersecurity Specialist",
+    "Network Administrator",
+    "Artificial Intelligence/Machine Learning Engineer",
+    "Web Developer",
+    "Mobile App Developer",
+    "Database Administrator",
+    "IT Consultant",
+    "Systems Analyst",
+    "Cloud Architect",
+    "UX/UI Designer",
+    "Game Developer",
+    "DevOps Engineer",
+    "Business Analyst (IT)",
+    "Network Engineer",
+    "Software Tester/QA Engineer",
+    "Blockchain Developer",
+    "Computer Systems Analyst"
+  ];
 
   const callAI = async (finalText) => {
     isManuallyStopped.current = true;
@@ -140,12 +163,11 @@ function App() {
     }
   }, []);
 
-  // Parana phones wala colors override karanna menna me style tika danna
   const strictStyles = {
-    bg: { backgroundColor: "rgb(15, 23, 42)" }, // Solid Slate 900
-    card: { backgroundColor: "rgb(30, 41, 59)", border: "1px solid rgb(51, 65, 85)" }, // Solid Slate 800
+    bg: { backgroundColor: "rgb(15, 23, 42)" }, 
+    card: { backgroundColor: "rgb(30, 41, 59)", border: "1px solid rgb(51, 65, 85)" }, 
     input: { backgroundColor: "rgb(2, 6, 23)", color: "#ffffff" },
-    blueText: { color: "rgb(96, 165, 250)" }, // Bright Blue
+    blueText: { color: "rgb(96, 165, 250)" }, 
     blueBtn: { backgroundColor: "rgb(37, 99, 235)", color: "#ffffff" }
   };
 
@@ -187,10 +209,9 @@ function App() {
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                 >
-                  <option value="Software Engineer">Software Engineer</option>
-                  <option value="AI Developer">AI Developer</option>
-                  <option value="Frontend Developer">Frontend Developer</option>
-                  <option value="Full Stack Engineer">Full Stack Engineer</option>
+                  {jobRoles.map((role, index) => (
+                    <option key={index} value={role}>{role}</option>
+                  ))}
                 </select>
               </div>
             )}
