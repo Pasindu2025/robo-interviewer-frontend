@@ -22,7 +22,7 @@ function App() {
   const callAI = async (finalText) => {
     isManuallyStopped.current = true;
     if (recognitionRef.current) recognitionRef.current.stop();
-    
+
     setCurrentQuestion("Analyzing your answer...");
     try {
       const response = await fetch("https://robo-interviewer-backend-production.up.railway.app/api/interview/validate", {
@@ -35,25 +35,27 @@ function App() {
           category: category 
         }),
       });
+
       const data = await response.json();
       const finished = data.isFinished === true || data.isFinished === "true";
 
       speak(data.feedback, () => {
         if (finished || countRef.current >= 10) {
-          setFinalReport(data.feedback); 
+          setFinalReport(data.feedback);
           setCurrentQuestion("Interview Session Completed!");
           setInterviewStep(100);
         } else {
           countRef.current += 1;
           setQuestionCount(countRef.current);
           setCurrentQuestion(data.nextQuestion);
-          setTranscript(""); 
+          setTranscript("");
           speak(data.nextQuestion, () => startListening());
         }
       });
+
     } catch (error) {
       console.error("Error:", error);
-      speak("I see. Let's move on.", () => startListening());
+      speak("Let's move to the next question.", () => startListening());
     }
   };
 
@@ -61,7 +63,7 @@ function App() {
     if (transcript.trim().length > 2) {
       callAI(transcript.trim());
     } else {
-      speak("Please type or speak your answer.", () => startListening());
+      speak("Please answer first.", () => startListening());
     }
   };
 
@@ -77,7 +79,7 @@ function App() {
         for (let i = event.resultIndex; i < event.results.length; ++i) {
           currentResult += event.results[i][0].transcript;
         }
-        setTranscript(currentResult); 
+        setTranscript(currentResult);
 
         if (currentResult.toLowerCase().includes("done")) {
           callAI(currentResult.replace(/done/gi, "").trim());
@@ -88,11 +90,12 @@ function App() {
         if (!isManuallyStopped.current) {
           try {
             recognition.start();
-          } catch (e) { console.log("Restarting..."); }
+          } catch (e) {}
         } else {
           setIsListening(false);
         }
       };
+
       recognitionRef.current = recognition;
     }
   }, [SpeechRecognition]);
@@ -109,13 +112,14 @@ function App() {
     setIsListening(true);
     try {
       recognitionRef.current.start();
-    } catch (e) { console.log("Active"); }
+    } catch (e) {}
   };
 
   const startInterview = () => {
     setInterviewStep(0);
     countRef.current = 1;
     setQuestionCount(1);
+
     const intro = `Welcome! Let's start the ${category} interview. Please introduce yourself.`;
     setCurrentQuestion(intro);
     speak(intro, () => startListening());
@@ -127,7 +131,9 @@ function App() {
     if (animeContainer.current) {
       const anim = lottie.loadAnimation({
         container: animeContainer.current,
-        renderer: "svg", loop: true, autoplay: true,
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
         animationData: robotAnimation,
       });
       return () => anim.destroy();
@@ -135,79 +141,69 @@ function App() {
   }, []);
 
   return (
-    /* පෝන් වලට සෙට් වෙන්න w-screen සහ max-w-full දැම්මා */
-    <div className="min-h-screen w-full bg-slate-900 text-slate-100 flex flex-col items-center justify-center p-4 sm:p-6 font-sans antialiased overflow-x-hidden">
+    /* h-screen වෙනුවට min-h-screen දාලා overflow හදල තියෙන්නේ */
+    <div className="min-h-screen w-full bg-[#0f172a] text-white flex flex-col items-center justify-center p-4 font-sans overflow-y-auto">
       
-      <h1 className="text-xl sm:text-2xl font-black text-blue-500 mb-6 sm:mb-8 italic tracking-widest text-center uppercase">
+      <h1 className="text-2xl font-black text-blue-400 mb-8 text-center italic tracking-widest">
         ROBO INTERVIEWER PRO
       </h1>
-      
-      {/* Container එකේ width එක mobile වලට තවත් flexible කළා */}
-      <div className="bg-slate-800 shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-sm p-6 sm:p-8 rounded-[2rem] w-full max-w-[95%] sm:max-w-md border border-slate-700/50 text-center transition-all">
+
+      <div className="bg-[#1e293b]/80 backdrop-blur-md p-6 sm:p-8 rounded-[2.5rem] w-full max-w-md border border-slate-700/50 text-center shadow-2xl transition-all">
         
-        <div className="w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-6 bg-slate-900 rounded-full border-2 border-blue-500/20 flex items-center justify-center overflow-hidden shadow-inner">
+        <div className="w-28 h-28 mx-auto mb-6 bg-[#020617] rounded-full border-2 border-blue-500/10 flex items-center justify-center overflow-hidden">
           <div ref={animeContainer} className="w-full h-full scale-110"></div>
         </div>
 
         {interviewStep === 100 ? (
-          <div className="animate-fade-in">
-            <h2 className="text-xl font-bold text-green-400 mb-4">Final Report</h2>
-            <div className="bg-slate-950/90 p-5 rounded-2xl text-left text-sm text-slate-300 mb-6 border border-slate-800 max-h-60 overflow-y-auto custom-scrollbar leading-relaxed">
+          <div className="animate-in fade-in duration-500">
+            <h2 className="text-xl font-bold text-green-400 mb-4 uppercase tracking-wider">Final Report</h2>
+
+            <div className="bg-[#020617] p-5 rounded-2xl text-left text-sm text-gray-300 mb-6 max-h-64 overflow-y-auto custom-scrollbar border border-slate-800 leading-relaxed">
               {finalReport}
             </div>
+
             <button 
               onClick={restartApp} 
-              className="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-black shadow-lg active:scale-95 transition-all"
+              className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-black shadow-lg shadow-blue-900/20 active:scale-95 transition-all flex items-center justify-center gap-2"
             >
               <FaUndo /> RESTART SESSION
             </button>
           </div>
         ) : (
           <>
-            <div className="min-h-[80px] flex items-center justify-center mb-6">
-               <p className="text-base sm:text-lg font-medium italic text-slate-200 leading-snug">
-                "{currentQuestion}"
-              </p>
+            <div className="min-h-[70px] flex items-center justify-center mb-6">
+               <p className="italic text-gray-200 text-lg leading-snug">"{currentQuestion}"</p>
             </div>
 
             {interviewStep === -1 && (
-              <div className="mb-6 animate-fade-in text-left">
-                <label className="text-[10px] text-blue-400 font-bold block mb-2 uppercase tracking-widest ml-1">
-                  Target Interview Role
-                </label>
+              <div className="mb-4 animate-in slide-in-from-bottom-2 duration-300">
+                <label className="text-[10px] text-blue-400 font-bold block mb-2 uppercase tracking-widest text-left ml-2">Select Your Role</label>
                 <select 
-                  className="w-full bg-slate-900 text-white p-4 rounded-2xl border border-slate-700 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all cursor-pointer appearance-none"
+                  className="w-full bg-[#020617] text-white p-4 rounded-2xl border border-slate-700 outline-none focus:border-blue-500 transition-all cursor-pointer appearance-none"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%233b82f6\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'org/19/9 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.5em' }}
                 >
                   <option value="Software Engineer">Software Engineer</option>
                   <option value="AI Developer">AI Developer</option>
-                  <option value="Network Engineer">Network Engineer</option>
-                  <option value="QA Engineer">QA Engineer</option>
-                  <option value="Java Developer">Java Developer</option>
                   <option value="Frontend Developer">Frontend Developer</option>
-                  <option value="Python Developer">Python Developer</option>
-                  <option value="UI/UX Designer">UI/UX Designer</option>
                   <option value="Full Stack Engineer">Full Stack Engineer</option>
                 </select>
               </div>
             )}
 
-            <div className="bg-slate-950/90 p-4 rounded-2xl text-left text-sm text-slate-400 mb-6 border border-slate-800 focus-within:border-blue-500/50 transition-all relative">
-              <span className="text-[10px] text-blue-400 font-bold block mb-2 uppercase tracking-widest">
-                Answer Area
-              </span>
+            <div className="bg-[#020617] p-4 rounded-2xl mb-6 relative border border-slate-800 focus-within:border-blue-500/50 transition-all">
+              <span className="text-[10px] text-blue-400 font-bold block mb-2 uppercase tracking-widest text-left">Real-time Transcript</span>
               <textarea
-                className="w-full bg-transparent text-slate-200 border-none outline-none resize-none min-h-[120px] pr-12 leading-relaxed custom-scrollbar"
+                className="w-full bg-transparent outline-none text-white min-h-[120px] resize-none pr-10 leading-relaxed"
                 value={transcript}
                 onChange={(e) => setTranscript(e.target.value)}
-                placeholder={isListening ? "Listening... speak now" : "Start to enable voice/typing"}
+                placeholder={isListening ? "Listening... Speak or Type" : "Select role to begin..."}
               />
+
               {isListening && (
                 <button 
                   onClick={handleManualDone} 
-                  className="absolute right-4 bottom-4 text-green-500 hover:text-green-400 transition-all active:scale-90 z-10"
+                  className="absolute bottom-4 right-4 text-green-500 hover:text-green-400 transition-all active:scale-90"
                 >
                   <FaCheckCircle size={32} />
                 </button>
@@ -222,8 +218,8 @@ function App() {
                 START INTERVIEW
               </button>
             ) : (
-              <div className="py-3 px-6 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 font-black tracking-widest text-xs uppercase">
-                Round {questionCount} of 10
+              <div className="py-2 px-6 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 font-black text-xs uppercase tracking-[0.2em] inline-block">
+                Question {questionCount} / 10
               </div>
             )}
           </>
