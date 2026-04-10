@@ -9,7 +9,7 @@ function App() {
   const [isListening, setIsListening] = useState(false);
   const [interviewStep, setInterviewStep] = useState(-1);
   const [questionCount, setQuestionCount] = useState(1);
-  const [category, setCategory] = useState("Software Engineer"); // 👈 Default එක Software Engineer කළා
+  const [category, setCategory] = useState("Software Engineer"); 
   const [finalReport, setFinalReport] = useState(""); 
 
   const countRef = useRef(1);
@@ -135,36 +135,52 @@ function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-6 font-sans">
-      <h1 className="text-2xl font-black text-blue-500 mb-8 italic tracking-widest">ROBO INTERVIEWER PRO</h1>
+    /* පෝන් වලට සෙට් වෙන්න w-screen සහ max-w-full දැම්මා */
+    <div className="min-h-screen w-full bg-slate-900 text-slate-100 flex flex-col items-center justify-center p-4 sm:p-6 font-sans antialiased overflow-x-hidden">
       
-      <div className="bg-slate-800/50 backdrop-blur-md p-8 rounded-[2.5rem] w-full max-w-md border border-slate-700 text-center shadow-2xl">
+      <h1 className="text-xl sm:text-2xl font-black text-blue-500 mb-6 sm:mb-8 italic tracking-widest text-center uppercase">
+        ROBO INTERVIEWER PRO
+      </h1>
+      
+      {/* Container එකේ width එක mobile වලට තවත් flexible කළා */}
+      <div className="bg-slate-800 shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-sm p-6 sm:p-8 rounded-[2rem] w-full max-w-[95%] sm:max-w-md border border-slate-700/50 text-center transition-all">
         
-        <div className="w-32 h-32 mx-auto mb-6 bg-slate-900 rounded-full border-2 border-blue-500/20 flex items-center justify-center overflow-hidden">
+        <div className="w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-6 bg-slate-900 rounded-full border-2 border-blue-500/20 flex items-center justify-center overflow-hidden shadow-inner">
           <div ref={animeContainer} className="w-full h-full scale-110"></div>
         </div>
 
         {interviewStep === 100 ? (
           <div className="animate-fade-in">
             <h2 className="text-xl font-bold text-green-400 mb-4">Final Report</h2>
-            <div className="bg-slate-950/80 p-5 rounded-2xl text-left text-sm text-slate-300 mb-6 border border-slate-800 max-h-60 overflow-y-auto custom-scrollbar">
+            <div className="bg-slate-950/90 p-5 rounded-2xl text-left text-sm text-slate-300 mb-6 border border-slate-800 max-h-60 overflow-y-auto custom-scrollbar leading-relaxed">
               {finalReport}
             </div>
-            <button onClick={restartApp} className="flex items-center justify-center gap-2 w-full bg-blue-600 py-4 rounded-2xl font-black shadow-lg shadow-blue-900/20 active:scale-95 transition-transform"><FaUndo /> RESTART</button>
+            <button 
+              onClick={restartApp} 
+              className="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-black shadow-lg active:scale-95 transition-all"
+            >
+              <FaUndo /> RESTART SESSION
+            </button>
           </div>
         ) : (
           <>
-            <p className="text-lg font-medium mb-6 italic min-h-[60px] text-slate-200">"{currentQuestion}"</p>
+            <div className="min-h-[80px] flex items-center justify-center mb-6">
+               <p className="text-base sm:text-lg font-medium italic text-slate-200 leading-snug">
+                "{currentQuestion}"
+              </p>
+            </div>
 
             {interviewStep === -1 && (
               <div className="mb-6 animate-fade-in text-left">
-                <label className="text-[10px] text-blue-400 font-bold block mb-2 uppercase tracking-widest ml-1">Select Target Role</label>
+                <label className="text-[10px] text-blue-400 font-bold block mb-2 uppercase tracking-widest ml-1">
+                  Target Interview Role
+                </label>
                 <select 
-                  className="w-full bg-slate-900 text-white p-4 rounded-2xl border border-slate-700 outline-none focus:border-blue-500 transition-colors cursor-pointer"
+                  className="w-full bg-slate-900 text-white p-4 rounded-2xl border border-slate-700 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all cursor-pointer appearance-none"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
+                  style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%233b82f6\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'org/19/9 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.5em' }}
                 >
-                  {/* මම ඔයා ඉල්ලපු අලුත් ටික පිළිවෙළට මෙතනට දැම්මා */}
                   <option value="Software Engineer">Software Engineer</option>
                   <option value="AI Developer">AI Developer</option>
                   <option value="Network Engineer">Network Engineer</option>
@@ -178,26 +194,36 @@ function App() {
               </div>
             )}
 
-            <div className="bg-slate-950/80 p-4 rounded-2xl text-left text-sm text-slate-400 mb-6 border border-slate-800 relative focus-within:border-blue-500/50 transition-colors">
-              <span className="text-[10px] text-blue-400 font-bold block mb-2 uppercase tracking-widest">Answer Area</span>
+            <div className="bg-slate-950/90 p-4 rounded-2xl text-left text-sm text-slate-400 mb-6 border border-slate-800 focus-within:border-blue-500/50 transition-all relative">
+              <span className="text-[10px] text-blue-400 font-bold block mb-2 uppercase tracking-widest">
+                Answer Area
+              </span>
               <textarea
-                className="w-full bg-transparent text-slate-200 border-none outline-none resize-none min-h-[100px] pr-10 leading-relaxed custom-scrollbar"
+                className="w-full bg-transparent text-slate-200 border-none outline-none resize-none min-h-[120px] pr-12 leading-relaxed custom-scrollbar"
                 value={transcript}
                 onChange={(e) => setTranscript(e.target.value)}
-                placeholder={isListening ? "Listening... or click to type" : "Choose role and start"}
+                placeholder={isListening ? "Listening... speak now" : "Start to enable voice/typing"}
               />
               {isListening && (
-                <button onClick={handleManualDone} className="absolute right-3 bottom-3 text-green-500 hover:text-green-400 transition-all active:scale-90">
-                  <FaCheckCircle size={30} />
+                <button 
+                  onClick={handleManualDone} 
+                  className="absolute right-4 bottom-4 text-green-500 hover:text-green-400 transition-all active:scale-90 z-10"
+                >
+                  <FaCheckCircle size={32} />
                 </button>
               )}
             </div>
 
             {interviewStep === -1 ? (
-              <button onClick={startInterview} className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-black text-lg transition-all shadow-lg active:scale-95">START SESSION</button>
+              <button 
+                onClick={startInterview} 
+                className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-black text-lg transition-all shadow-xl shadow-blue-900/20 active:scale-95"
+              >
+                START INTERVIEW
+              </button>
             ) : (
-              <div className="py-3 px-6 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-blue-400 font-black tracking-widest">
-                ROUND {questionCount} OF 10
+              <div className="py-3 px-6 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 font-black tracking-widest text-xs uppercase">
+                Round {questionCount} of 10
               </div>
             )}
           </>
